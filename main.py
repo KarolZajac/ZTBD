@@ -1,8 +1,10 @@
 from Redis import RedisDB
+from PostgreSQL import PostgreSQLDB
 import pandas as pd
 
 databases = {
-    'Redis': RedisDB
+    'Redis': RedisDB,
+    'PostgreSQL': PostgreSQLDB
 }
 
 
