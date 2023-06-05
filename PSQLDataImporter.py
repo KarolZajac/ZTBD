@@ -3,9 +3,10 @@ import json
 
 
 class PostgreSQLDataImporter:
-    def __init__(self, db_size):
+    def __init__(self, db_size, dataset):
         self.import_done = False
         self.db_size = db_size
+        self.dataset = dataset
         self.connection = psycopg2.connect(
             host="localhost",
             database="yelp_database",
@@ -24,35 +25,54 @@ class PostgreSQLDataImporter:
         self.import_done = True
 
     def init_table(self):
-        create_table_query = '''
-        CREATE TABLE Business (
-            business_id VARCHAR(30),
-            name TEXT,
-            address TEXT,
-            city TEXT,
-            state TEXT,
-            postal_code TEXT,
-            latitude FLOAT,
-            longitude FLOAT,
-            stars FLOAT,
-            review_count INTEGER,
-            is_open INTEGER,
-            attributes TEXT,
-            categories TEXT,
-            hours TEXT
-        );
-        
-        
-        '''
+        if self.dataset == "Yelp":
+            create_table_query = '''
+            CREATE TABLE Business (
+                business_id VARCHAR(30),
+                name TEXT,
+                address TEXT,
+                city TEXT,
+                state TEXT,
+                postal_code TEXT,
+                latitude FLOAT,
+                longitude FLOAT,
+                stars FLOAT,
+                review_count INTEGER,
+                is_open INTEGER,
+                attributes TEXT,
+                categories TEXT,
+                hours TEXT
+            );
+            '''
+        else:
+            create_table_query = '''
+            CREATE TABLE Movies (
+                top_id INTEGER,
+                title TEXT,
+                year INTEGER,
+                rating FLOAT
+            );
+            '''
         self.cursor.execute(create_table_query)
         self.connection.commit()
 
     def drop_table(self):
-        drop_table_query = "DROP TABLE IF EXISTS Business;"
+        if self.dataset == "Yelp":
+            drop_table_query = "DROP TABLE IF EXISTS Business;"
+        else:
+            drop_table_query = "DROP TABLE IF EXISTS Movies;"
+
         self.cursor.execute(drop_table_query)
         self.connection.commit()
 
     def import_data(self):
+        if self.dataset == "Yelp":
+
+            self.import_yelp_dataset()
+        else:
+            self.import_imdb_dataset()
+
+    def import_yelp_dataset(self):
 
         json_data = []
 
@@ -112,5 +132,22 @@ class PostgreSQLDataImporter:
                     categories, json.dumps(hours)
                 )
             )
+
+        self.connection.commit()
+
+    def import_imdb_dataset(self):
+
+        with open('scraped_data.json') as file:
+            data = json.load(file)
+
+            movies = data['movies'][:self.db_size]
+
+            for movie in movies:
+                top_id, title, year, rating = movie
+
+                self.cursor.execute(
+                    "INSERT INTO movies (top_id, title, year, rating) VALUES (%s, %s, %s, %s)",
+                    (top_id, title, year, rating)
+                )
 
         self.connection.commit()
