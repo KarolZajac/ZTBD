@@ -50,8 +50,8 @@ class PostgreSQLDB(TestDB):
         self.connection.commit()
         return datetime.now() - clock_start
 
-    def test_insert_100(self) -> timedelta:
-        select_query = "SELECT * FROM Business ORDER BY random() LIMIT 100"
+    def test_insert_many(self, n=100) -> timedelta:
+        select_query = "SELECT * FROM Business ORDER BY random() LIMIT {n}".format(n=n)
         self.cursor.execute(select_query)
         random_records = self.cursor.fetchall()
         clock_start = datetime.now()
@@ -91,6 +91,43 @@ class PostgreSQLDB(TestDB):
             index=search_value,
             column=update_key,
             value=update_value)
+        self.cursor.execute(query)
+        self.connection.commit()
+        return datetime.now() - clock_start
+
+    def test_count_total(self) -> timedelta:
+        clock_start = datetime.now()
+        query = "SELECT COUNT(*) FROM Business;"
+        self.cursor.execute(query)
+        self.connection.commit()
+        return datetime.now() - clock_start
+
+    def test_column_avg(self, key: str) -> timedelta:
+        clock_start = datetime.now()
+        query = "SELECT AVG({column}) AS average_value FROM Business;".format(column=key)
+        self.cursor.execute(query)
+        self.connection.commit()
+        return datetime.now() - clock_start
+
+    def test_column_stddev(self, key: str) -> timedelta:
+        clock_start = datetime.now()
+        query = "SELECT STDDEV({column}) AS stddev_value FROM Business;".format(column=key)
+        self.cursor.execute(query)
+        self.connection.commit()
+        return datetime.now() - clock_start
+
+    def test_distribution(self, key: str) -> timedelta:
+        clock_start = datetime.now()
+        query = "SELECT AVG({column}) AS average_value, STDDEV({column}) AS stddev_value FROM Business;" \
+            .format(column=key)
+        self.cursor.execute(query)
+        self.connection.commit()
+        return datetime.now() - clock_start
+
+    def test_count_word_occurences(self, key: str, string: str) -> timedelta:
+        clock_start = datetime.now()
+        query = "SELECT COUNT(*) AS word_occurences FROM Business WHERE {column} LIKE '%{string}%';" \
+            .format(column=key, string=string)
         self.cursor.execute(query)
         self.connection.commit()
         return datetime.now() - clock_start

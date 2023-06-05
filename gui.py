@@ -15,7 +15,9 @@ class TestResultsDialog(QDialog):
         # Create a QTextEdit to display the dataframe
         self.dataframe_text = QTextEdit(self)
         self.dataframe_text.setReadOnly(True)
-        self.dataframe_text.setText(results_df.to_string())
+        for column in results_df.columns:
+            column_text = f"{column}: {', '.join(results_df[column].astype(str))}\n"
+            self.dataframe_text.append(column_text)
         self.layout.addWidget(self.dataframe_text)
 
         # Create a QLabel to display the plot image
