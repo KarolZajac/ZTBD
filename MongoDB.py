@@ -8,8 +8,9 @@ from database_test import TestDB
 
 
 class MongoDB(TestDB):
-    def __init__(self, db_size, scrapedData=False):
+    def __init__(self, db_size, scrapedData=True):
         super().__init__(db_size)
+        self.scrapedData = scrapedData
         client = MongoClient("mongodb+srv://Michni:michni@ztbd.7ciyl2n.mongodb.net/")
         db = client["ZTBD"]
         for collection_name in db.list_collection_names():
@@ -39,12 +40,12 @@ class MongoDB(TestDB):
                 movies.append(movie)
             self.collection.insert_many(movies[:db_size])
 
-
-
-
     def test_select_index(self, index: str) -> float:
         clock_start = datetime.now()
-        query = {"business_id": index}
+        if self.scrapedData is True:
+            query = {"id": index}
+        else:
+            query = {"business_id": index}
         self.collection.find_one(query)
         return datetime.now() - clock_start
 
@@ -72,7 +73,11 @@ class MongoDB(TestDB):
 
     def test_delete_index(self, index: str) -> float:
         clock_start = datetime.now()
-        self.collection.delete_one({"business_id": index})
+        if self.scrapedData is True:
+            self.collection.delete_one({"id": index})
+        else:
+            self.collection.delete_one({"business_id": index})
+
         return datetime.now() - clock_start
 
     def test_delete_where(self, key: str, value: str) -> float:
@@ -82,10 +87,16 @@ class MongoDB(TestDB):
 
     def test_update_index(self, search_index: str, update_key: str, update_value: str) -> float:
         clock_start = datetime.now()
-        self.collection.update_one(
-            {'business_id': search_index},
-            {'$set': {update_key: update_value}}
-        )
+        if self.scrapedData is True:
+            self.collection.update_one(
+                {'id': search_index},
+                {'$set': {update_key: update_value}}
+            )
+        else:
+            self.collection.update_one(
+                {'business_id': search_index},
+                {'$set': {update_key: update_value}}
+            )
         return datetime.now() - clock_start
 
     def test_update_where(self, search_key: str, search_value: str, update_key: str, update_value: str) -> float:
@@ -97,9 +108,9 @@ class MongoDB(TestDB):
         return datetime.now() - clock_start
 
 
-    def test_column_median(self, key: str) -> float:
+    def test_column_median(self, column: str) -> float:
         clock_start = datetime.now()
-        target_field = key
+        target_field = column
         values = list(self.collection.find({}, {target_field: 1}))
         data = [entry[target_field] for entry in values]
         data.sort()
@@ -116,20 +127,21 @@ class MongoDB(TestDB):
         self.collection.count_documents({})
         return datetime.now() - clock_start
 
-    def test_column_avg(self, key: str):
+    def test_column_avg(self, column: str):
         clock_start = datetime.now()
-        target_field = key
+        target_field = column
         values = list(self.collection.find({}, {target_field: 1}))
-        data = [int(entry[target_field]) for entry in values if entry[target_field] and entry[target_field].isdigit()]
 
+        data = [int(entry[target_field]) for entry in values if
+                    isinstance(entry[target_field], str) and entry[target_field].isdigit()]
         if len(data) > 0:
             total = sum(data)
             total / len(data)
         return datetime.now() - clock_start
 
-    def test_count_word_occurences(self, key: str, string: str):
+    def test_count_word_occurences(self, search_column: str, string: str):
         clock_start = datetime.now()
-        target_field = key
+        target_field = search_column
         target_phrase = string
 
         pipeline = [

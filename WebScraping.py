@@ -40,6 +40,7 @@ def fullTextSearch(cursor):
     search_query = "Alien"
     cursor.execute("SELECT * FROM movies_fts WHERE movies_fts MATCH ?", (search_query,))
     results = cursor.fetchall()
+    cursor.execute("SELECT * FROM movies_fts WHERE nazwa LIKE ?", ('%' + search_query + '%',))
 
 def main():
     conn = sqlite3.connect('mydatabase.db')

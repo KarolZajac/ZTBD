@@ -15,17 +15,17 @@ db_params = {
         "string": 'Food'
     },
     "IMDB": {
-        "index": "qkRM_2X51Yqxk3btlwAQIg",
-        "key": 'name',
-        "value": 'The UPS Store',
-        "search_index": 'bBDDEgkFA1Otx9Lfe7BZUQ',
-        "update_key": 'stars',
-        "update_value": 2,
-        "search_key": 'is_open',
-        "search_value": 0,
-        "column": 'stars',
-        "search_column": 'categories',
-        "string": 'Food'
+        "index": "3",
+        "key": 'rating',
+        "value": 9.0,
+        "search_index": '5',
+        "update_key": 'title',
+        "update_value": 'Bomba',
+        "search_key": 'year',
+        "search_value": 1972,
+        "column": 'year',
+        "search_column": 'title',
+        "string": 'Avengers'
     }
 }
 
@@ -46,7 +46,6 @@ def run_basic_tests(db_conn, db_params):
                                       update_key=db_params["update_key"], update_value=db_params["update_value"])],
         'test_column_avg': [db_conn.test_column_avg(column=db_params["column"])],
         'test_column_median': [db_conn.test_column_median(column=db_params["column"])],
-        # 'test_distribution': [db_conn.test_distribution(key='stars')],
         'test_count_word_occurences': [
             db_conn.test_count_word_occurences(search_column=db_params["search_column"], string=db_params["string"])]
     })
