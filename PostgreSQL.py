@@ -10,8 +10,6 @@ class PostgreSQLDB(TestDB):
     def __init__(self, db_size):
         super().__init__(db_size)
         self.data_importer = PostgreSQLDataImporter(db_size)
-        while not self.data_importer:
-            pass
         print("PostgreSQL data table ready!")
         self.columns_string = "(business_id, name, address, city, state, postal_code, latitude, longitude, stars, " \
                               "review_count, is_open, attributes, categories, hours)"
@@ -62,6 +60,7 @@ class PostgreSQLDB(TestDB):
         return datetime.now() - clock_start
 
     def test_delete_index(self, index: str) -> timedelta:
+        print("test")
         clock_start = datetime.now()
         query = "DELETE FROM Business WHERE business_id = '{index}';".format(index=index)
         self.cursor.execute(query)
@@ -69,6 +68,8 @@ class PostgreSQLDB(TestDB):
         return datetime.now() - clock_start
 
     def test_delete_where(self, key: str, value: str) -> timedelta:
+        print("test")
+
         clock_start = datetime.now()
         query = "DELETE FROM Business WHERE {column} = '{value}';".format(column=key, value=value)
         self.cursor.execute(query)

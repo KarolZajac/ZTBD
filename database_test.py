@@ -12,7 +12,7 @@ class TestDB():
     def test_insert_1(self) -> float:
         pass
 
-    def test_insert_100(self) -> float:
+    def test_insert_many(self, n=100) -> float:
         pass
 
     def test_delete_index(self, index: str) -> float:
