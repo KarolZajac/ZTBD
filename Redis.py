@@ -54,9 +54,9 @@ class RedisDB(TestDB):
         self.db.json().set(*row_inp)
         return datetime.now() - clock_start
     
-    def test_insert_100(self) -> timedelta:
+    def test_insert_many(self, n=100) -> float:
         clock_start = datetime.now()
-        for _, row in self.file_data.tail(100).iterrows():
+        for _, row in self.file_data.tail(n).iterrows():
             self.db.json().set(f"{self.db_schema}:{row[self.db_index]}", Path.root_path(), {self.db_schema: row.drop(self.db_index).to_dict()})
         return datetime.now() - clock_start
     
