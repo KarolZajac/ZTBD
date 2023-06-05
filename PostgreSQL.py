@@ -3,11 +3,16 @@ from datetime import datetime, timedelta
 import psycopg2
 
 from database_test import TestDB
+from PSQLDataImporter import PostgreSQLDataImporter
 
 
 class PostgreSQLDB(TestDB):
     def __init__(self, db_size):
         super().__init__(db_size)
+        self.data_importer = PostgreSQLDataImporter(db_size)
+        while not self.data_importer:
+            pass
+        print("PostgreSQL data table ready!")
         self.columns_string = "(business_id, name, address, city, state, postal_code, latitude, longitude, stars, " \
                               "review_count, is_open, attributes, categories, hours)"
         self.values_string = "(" + ", ".join(["%s"] * 14) + ")"
@@ -18,7 +23,7 @@ class PostgreSQLDB(TestDB):
             password="karol123"
         )
         self.cursor = self.connection.cursor()
-        print("PostgreSQL init done!")
+        print("PostgreSQL db test init done!")
 
     def test_select_index(self, index: str) -> timedelta:
         clock_start = datetime.now()
@@ -73,8 +78,8 @@ class PostgreSQLDB(TestDB):
     def test_update_index(self, search_index: str, update_key: str, update_value: str) -> timedelta:
         clock_start = datetime.now()
         query = "UPDATE Business SET {column} = '{value}' WHERE business_id = '{index}';".format(index=search_index,
-                                                                                                  column=update_key,
-                                                                                                  value=update_value)
+                                                                                                 column=update_key,
+                                                                                                 value=update_value)
         self.cursor.execute(query)
         self.connection.commit()
         return datetime.now() - clock_start
@@ -89,4 +94,3 @@ class PostgreSQLDB(TestDB):
         self.cursor.execute(query)
         self.connection.commit()
         return datetime.now() - clock_start
-

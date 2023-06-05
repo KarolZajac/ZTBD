@@ -1,3 +1,4 @@
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QGroupBox, QFormLayout, QLabel, QComboBox, QLineEdit, QDialogButtonBox, \
     QVBoxLayout, QDialog, QWidget, QPushButton, QTextEdit, QMainWindow
 from config import *
@@ -5,7 +6,7 @@ from utils import *
 
 
 class TestResultsDialog(QDialog):
-    def __init__(self, db_type, results_df):
+    def __init__(self, db_type, results_df, plot):
         super().__init__()
         self.db_type = db_type
         self.setWindowTitle("Test scenarios results - " + db_type)
@@ -17,10 +18,17 @@ class TestResultsDialog(QDialog):
         self.dataframe_text.setText(results_df.to_string())
         self.layout.addWidget(self.dataframe_text)
 
+        # Create a QLabel to display the plot image
+        self.plot_label = QLabel(self)
+        pixmap = QPixmap(plot)
+        self.plot_label.setPixmap(pixmap)
+        self.layout.addWidget(self.plot_label)
+
         # Create a QPushButton to close the dialog
         self.close_button = QPushButton("Close", self)
         self.close_button.clicked.connect(self.close)
         self.layout.addWidget(self.close_button)
+        print("Results Dialog Opened!")
 
 
 class QueryFormWindow(QWidget):
@@ -44,8 +52,10 @@ class QueryFormWindow(QWidget):
         results_df['database'] = self.db_type
         results_df['table_size'] = table_size
         # Open the ResultsDialog and pass the results
-        results_dialog = TestResultsDialog(self.db_type, results_df)
+        img_path = "./out.png"
+        results_dialog = TestResultsDialog(self.db_type, results_df, img_path)
         results_dialog.exec_()
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
