@@ -18,6 +18,7 @@ class PostgreSQLDB(TestDB):
             password="karol123"
         )
         self.cursor = self.connection.cursor()
+        print("PostgreSQL init done!")
 
     def test_select_index(self, index: str) -> timedelta:
         clock_start = datetime.now()
@@ -88,3 +89,4 @@ class PostgreSQLDB(TestDB):
         self.cursor.execute(query)
         self.connection.commit()
         return datetime.now() - clock_start
+
