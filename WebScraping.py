@@ -1,5 +1,3 @@
-import json
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import sqlite3
@@ -36,17 +34,12 @@ def printDB(cursor):
         print(f'Rating: {row[3]}')
         print('---')
 
-def convertToJson(cursor):
-    cursor.execute("SELECT * FROM sqlite_master WHERE type='table'")
-    tables = [row[1] for row in cursor.fetchall()]
-    data = {}
-    for table in tables:
-        cursor.execute(f"SELECT * FROM {table}")
-        rows = cursor.fetchall()
-        data[table] = rows
-    with open('scraped_data.json', 'w') as json_file:
-        json.dump(data, json_file, indent=4)
-    print("Data exported.")
+def fullTextSearch(cursor):
+    cursor.execute("CREATE VIRTUAL TABLE movies_fts USING FTS5(id, title, year, rating)")
+    cursor.execute("INSERT INTO movies_fts(id, title, year, rating) SELECT id, title, year, rating FROM movies")
+    search_query = "Alien"
+    cursor.execute("SELECT * FROM movies_fts WHERE movies_fts MATCH ?", (search_query,))
+    results = cursor.fetchall()
 
 def main():
     conn = sqlite3.connect('mydatabase.db')
@@ -57,10 +50,8 @@ def main():
                       year INTEGER,
                       rating REAL)''')
     scrapeData(cursor)
+    fullTextSearch(cursor)
     # printDB(cursor)
-    convertToJson(cursor)
-    cursor.close()
-    conn.close()
 
 if __name__ == "__main__":
     main()
