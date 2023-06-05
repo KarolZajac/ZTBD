@@ -60,7 +60,6 @@ class PostgreSQLDB(TestDB):
         return datetime.now() - clock_start
 
     def test_delete_index(self, index: str) -> timedelta:
-        print("test")
         clock_start = datetime.now()
         query = "DELETE FROM Business WHERE business_id = '{index}';".format(index=index)
         self.cursor.execute(query)
@@ -68,8 +67,6 @@ class PostgreSQLDB(TestDB):
         return datetime.now() - clock_start
 
     def test_delete_where(self, key: str, value: str) -> timedelta:
-        print("test")
-
         clock_start = datetime.now()
         query = "DELETE FROM Business WHERE {column} = '{value}';".format(column=key, value=value)
         self.cursor.execute(query)
@@ -110,9 +107,10 @@ class PostgreSQLDB(TestDB):
         self.connection.commit()
         return datetime.now() - clock_start
 
-    def test_column_stddev(self, key: str) -> timedelta:
+    def test_column_median(self, key: str) -> timedelta:
         clock_start = datetime.now()
-        query = "SELECT STDDEV({column}) AS stddev_value FROM Business;".format(column=key)
+        query = "SELECT PERCENTILE_CONT(0.5) WITHIN GROUP ( ORDER BY {column} ) AS median FROM Business;" \
+            .format(column=key)
         self.cursor.execute(query)
         self.connection.commit()
         return datetime.now() - clock_start
