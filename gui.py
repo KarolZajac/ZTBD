@@ -30,15 +30,18 @@ class TestResultsDialog(QDialog):
 
 
 class QueryFormWindow(QWidget):
-    def __init__(self, db_type):
+    def __init__(self, db_type, dataset):
         super().__init__()
+        self.dataset = dataset
         self.db_type = db_type
         self.setWindowTitle("Testing - " + db_type)
-        self.setGeometry(200, 200, 600, 400)
+        self.setGeometry(200, 200, 600, 150)
         self.layout = QVBoxLayout(self)
+        self.table_size_label = QLabel("Table sizes:")
         self.table_size = QLineEdit("100, 1000, 10000, 100000")
+        self.layout.addWidget(self.table_size_label)
         self.layout.addWidget(self.table_size)
-        self.run_button = QPushButton("Run")
+        self.run_button = QPushButton("Run tests")
         self.run_button.clicked.connect(self.run_tests)
         self.layout.addWidget(self.run_button)
 
@@ -48,7 +51,7 @@ class QueryFormWindow(QWidget):
         results = []
         for size in table_size:
             print("Table size: " + str(size))
-            results_df = run_basic_tests(databases[self.db_type](size))
+            results_df = run_basic_tests(databases[self.db_type](size), db_params[self.dataset])
             results_df['database'] = self.db_type
             results_df['table_size'] = size
             results.append(results_df)
@@ -73,7 +76,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setGeometry(300, 300, 600, 400)
+        self.setGeometry(300, 300, 600, 200)
         self.setWindowTitle("ZTBD PROJ1")
 
         self.central_widget = QWidget(self)
@@ -81,18 +84,28 @@ class MainWindow(QMainWindow):
 
         self.layout = QVBoxLayout(self.central_widget)
         self.database_combo = QComboBox()
+        self.database_combo_label = QLabel("Choose Database for testing:")
+        self.layout.addWidget(self.database_combo_label)
+
         self.database_combo.addItem("PostgreSQL")
         self.database_combo.addItem("MongoDB")
         self.database_combo.addItem("Redis")
-
         self.layout.addWidget(self.database_combo)
 
-        self.query_button = QPushButton("Open Query Form")
+        self.dataset_combo_label = QLabel("Choose Dataset:")
+        self.layout.addWidget(self.dataset_combo_label)
+        self.dataset_combo = QComboBox()
+        self.dataset_combo.addItem("Yelp")
+        self.dataset_combo.addItem("IMDB")
+        self.layout.addWidget(self.dataset_combo)
+
+        self.query_button = QPushButton("Choose")
         self.query_button.clicked.connect(self.open_query_form)
+
         self.layout.addWidget(self.query_button)
         self.query_form = None
 
     def open_query_form(self):
         db_type = self.database_combo.currentText()
-        self.query_form = QueryFormWindow(db_type)
+        self.query_form = QueryFormWindow(db_type, self.dataset_combo.currentText())
         self.query_form.show()

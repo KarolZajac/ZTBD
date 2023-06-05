@@ -100,33 +100,33 @@ class PostgreSQLDB(TestDB):
         self.connection.commit()
         return datetime.now() - clock_start
 
-    def test_column_avg(self, key: str) -> timedelta:
+    def test_column_avg(self, column: str) -> timedelta:
         clock_start = datetime.now()
-        query = "SELECT AVG({column}) AS average_value FROM Business;".format(column=key)
+        query = "SELECT AVG({column}) AS average_value FROM Business;".format(column=column)
         self.cursor.execute(query)
         self.connection.commit()
         return datetime.now() - clock_start
 
-    def test_column_median(self, key: str) -> timedelta:
+    def test_column_median(self, column: str) -> timedelta:
         clock_start = datetime.now()
         query = "SELECT PERCENTILE_CONT(0.5) WITHIN GROUP ( ORDER BY {column} ) AS median FROM Business;" \
-            .format(column=key)
+            .format(column=column)
         self.cursor.execute(query)
         self.connection.commit()
         return datetime.now() - clock_start
 
-    def test_distribution(self, key: str) -> timedelta:
+    def test_distribution(self, column: str) -> timedelta:
         clock_start = datetime.now()
         query = "SELECT AVG({column}) AS average_value, STDDEV({column}) AS stddev_value FROM Business;" \
-            .format(column=key)
+            .format(column=column)
         self.cursor.execute(query)
         self.connection.commit()
         return datetime.now() - clock_start
 
-    def test_count_word_occurences(self, key: str, string: str) -> timedelta:
+    def test_count_word_occurences(self, search_column: str, string: str) -> timedelta:
         clock_start = datetime.now()
         query = "SELECT COUNT(*) AS word_occurences FROM Business WHERE {column} LIKE '%{string}%';" \
-            .format(column=key, string=string)
+            .format(column=search_column, string=string)
         self.cursor.execute(query)
         self.connection.commit()
         return datetime.now() - clock_start

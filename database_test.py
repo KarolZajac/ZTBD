@@ -30,14 +30,14 @@ class TestDB():
     def test_count_total(self) -> float:
         pass
 
-    def test_column_avg(self, key: str) -> float:
+    def test_column_avg(self, column: str) -> float:
         pass
 
-    def test_column_median(self, key: str) -> float:
+    def test_column_median(self, column: str) -> float:
         pass
 
-    def test_distribution(self, key: str) -> float:
+    def test_distribution(self, column: str) -> float:
         pass
 
-    def test_count_word_occurences(self, key: str, string: str) -> float:
+    def test_count_word_occurences(self, search_column: str, string: str) -> float:
         pass
