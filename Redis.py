@@ -15,13 +15,13 @@ class RedisDB(TestDB):
         if dataset == "Yelp":
             self.db_schema = 'business'  
             self.db_index = 'business_id'
-            self.file_data = pd.read_json('./data/yelp_academic_dataset_business.json', lines=True)
+            self.file_data = pd.read_json('yelp_academic_dataset_business.json', lines=True)
             self.file_data = self.file_data[['business_id', 'name', 'city', 'stars', 'review_count', 'is_open', 'categories']]
         
         elif dataset == "IMDB":        
             self.db_schema = 'movies'  
             self.db_index = 'top_id'
-            with open('./data/scraped_data.json') as file:
+            with open('scraped_data.json') as file:
                 self.file_data = json.load(file)
             self.file_data = pd.DataFrame(self.file_data['movies'])
             self.file_data.columns=['top_id', 'title', 'year', 'rating']
