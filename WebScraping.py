@@ -62,6 +62,7 @@ def main():
     # cursor.execute("INSERT INTO movies_fts(id, title, year, rating) SELECT id, title, year, rating FROM movies")
     # print(f"Match time: {testMatch(cursor)}")
     # print(f"Like time: {testMatch(cursor)}")
+
     cursor.execute('''CREATE TABLE IF NOT EXISTS yelp
                       (business_id TEXT PRIMARY KEY,
                        name TEXT,
