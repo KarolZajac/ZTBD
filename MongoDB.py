@@ -8,15 +8,18 @@ from database_test import TestDB
 
 
 class MongoDB(TestDB):
-    def __init__(self, db_size, scrapedData=True):
+    def __init__(self, db_size, dataset):
         super().__init__(db_size)
-        self.scrapedData = scrapedData
+        if dataset == "Yelp":
+            self.scrapedData = False
+        else:
+            self.scrapedData = True
         client = MongoClient("mongodb+srv://Michni:michni@ztbd.7ciyl2n.mongodb.net/")
         db = client["ZTBD"]
         for collection_name in db.list_collection_names():
             db[collection_name].drop()
 
-        if scrapedData is False:
+        if self.scrapedData is False:
             data = []
             self.collection = db["yelp"]
             with open('yelp_academic_dataset_business.json', encoding='utf-8') as f:
