@@ -1,24 +1,20 @@
+import pandas as pd
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QGroupBox, QFormLayout, QLabel, QComboBox, QLineEdit, QDialogButtonBox, \
     QVBoxLayout, QDialog, QWidget, QPushButton, QTextEdit, QMainWindow
+from matplotlib import pyplot as plt
+
 from config import *
 from utils import *
+import seaborn as sns
 
 
 class TestResultsDialog(QDialog):
-    def __init__(self, db_type, results_df, plot):
+    def __init__(self, db_type, plot):
         super().__init__()
         self.db_type = db_type
         self.setWindowTitle("Test scenarios results - " + db_type)
         self.layout = QVBoxLayout(self)
-
-        # Create a QTextEdit to display the dataframe
-        self.dataframe_text = QTextEdit(self)
-        self.dataframe_text.setReadOnly(True)
-        for column in results_df.columns:
-            column_text = f"{column}: {', '.join(results_df[column].astype(str))}\n"
-            self.dataframe_text.append(column_text)
-        self.layout.addWidget(self.dataframe_text)
 
         # Create a QLabel to display the plot image
         self.plot_label = QLabel(self)
@@ -40,7 +36,7 @@ class QueryFormWindow(QWidget):
         self.setWindowTitle("Testing - " + db_type)
         self.setGeometry(200, 200, 600, 400)
         self.layout = QVBoxLayout(self)
-        self.table_size = QLineEdit("100")
+        self.table_size = QLineEdit("100, 1000, 10000, 100000")
         self.layout.addWidget(self.table_size)
         self.run_button = QPushButton("Run")
         self.run_button.clicked.connect(self.run_tests)
@@ -48,14 +44,28 @@ class QueryFormWindow(QWidget):
 
     def run_tests(self):
         print("Testing scenarios for:" + self.db_type)
-        table_size = int(self.table_size.text())
-        print("Table size: " + str(table_size))
-        results_df = run_basic_tests(databases[self.db_type](table_size))
-        results_df['database'] = self.db_type
-        results_df['table_size'] = table_size
-        # Open the ResultsDialog and pass the results
+        table_size = [int(size) for size in self.table_size.text().split(',')]
+        results = []
+        for size in table_size:
+            print("Table size: " + str(size))
+            results_df = run_basic_tests(databases[self.db_type](size))
+            results_df['database'] = self.db_type
+            results_df['table_size'] = size
+            results.append(results_df)
+
+        out_df = pd.concat(results)
+        out_df.to_csv("results.csv", mode='a')
+        out_df = out_df.melt(id_vars=["database", "table_size"])
+
+        plt.subplots(figsize=(12, 5))
+        sns.barplot(y=out_df.variable, x=out_df.value.dt.microseconds, hue=out_df.table_size, orient="h")
+        plt.xlabel("Time [ms]")
+        plt.ylabel("Test name")
+        plt.xscale("log")
+        plt.savefig("./out.png")
         img_path = "./out.png"
-        results_dialog = TestResultsDialog(self.db_type, results_df, img_path)
+
+        results_dialog = TestResultsDialog(self.db_type, img_path)
         results_dialog.exec_()
 
 

@@ -14,10 +14,9 @@ def run_basic_tests(db_conn):
         'test_update_where': [
             db_conn.test_update_where(search_key='is_open', search_value=0, update_key='stars', update_value=0)],
         'test_column_avg': [db_conn.test_column_avg(key='stars')],
-        'test_column_stddev': [db_conn.test_column_stddev(key='stars')],
-        'test_distribution': [db_conn.test_distribution(key='stars')],
+        'test_column_median': [db_conn.test_column_median(key='stars')],
+        # 'test_distribution': [db_conn.test_distribution(key='stars')],
         'test_count_word_occurences': [db_conn.test_count_word_occurences(key="categories", string='Food')]
-
     })
 
     return test_times_df
