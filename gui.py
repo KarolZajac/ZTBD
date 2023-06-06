@@ -59,7 +59,7 @@ class QueryFormWindow(QWidget):
 
         out_df = pd.concat(results)
         out_df.to_csv("results.csv", mode='w')
-        out_df = out_df.melt(id_vars=["database", "table_size"])
+        out_df = out_df.melt(id_vars=["database", "table_size", "dataset"])
 
         plt.subplots(figsize=(12, 5))
         sns.barplot(y=out_df.variable, x=out_df.value.dt.microseconds, hue=out_df.table_size, orient="h")
