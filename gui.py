@@ -54,6 +54,7 @@ class QueryFormWindow(QWidget):
             results_df = run_basic_tests(databases[self.db_type](size, self.dataset), db_params[self.dataset])
             results_df['database'] = self.db_type
             results_df['table_size'] = size
+            results_df['dataset'] = self.dataset
             results.append(results_df)
 
         out_df = pd.concat(results)
